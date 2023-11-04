@@ -32,7 +32,7 @@ namespace PnP.Core.Model.SharePoint
             {
                 throw new ArgumentNullException(nameof(label));
             }
-            
+
             TermId = termId;
             Label = label;
             WssId = wssId;
@@ -109,24 +109,20 @@ namespace PnP.Core.Model.SharePoint
 
         internal override IFieldValue FromListDataAsStream(Dictionary<string, string> properties)
         {
-            if (!properties.ContainsKey("TermID"))
-            {
-                TermId = Guid.Empty;
-                Label = null;
-            }
-            else
+            if (properties.ContainsKey("TermID") && Guid.TryParse(properties["TermID"], out Guid parsedTermGuid))
             {
                 if (properties.ContainsKey("Label"))
                 {
                     Label = properties["Label"];
                 }
 
-                if (properties.ContainsKey("TermID"))
-                {
-                    TermId = Guid.Parse(properties["TermID"]);
-                }
-
+                TermId = parsedTermGuid;
                 WssId = -1;
+            }
+            else
+            {
+                TermId = Guid.Empty;
+                Label = null;
             }
 
             // Clear changes
@@ -187,6 +183,5 @@ namespace PnP.Core.Model.SharePoint
                 .Replace(CsomHelper.FieldValue, WssId.ToString()));
             return sb.ToString();
         }
-
     }
 }
